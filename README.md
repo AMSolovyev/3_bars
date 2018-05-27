@@ -13,7 +13,7 @@ The example of script launch on Linux, Python 3.5 and you need bars.json, which 
 
 # How to use 
 
-``` $ python3 bars.py ```
+``` $ python3 bars.py 'name file.json'```
 
 
 You can print data like this: 
