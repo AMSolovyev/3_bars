@@ -1,37 +1,47 @@
-import csv
 import json
-from math import hypot
+from math import sqrt
 import os
 import sys
 
 
-def load_data_from_json(filepath):
-    with open(filepath, 'r') as file_handler:
-        return json.load(file_handler)
+def load_data_from_json(file_path):
+    try:
+        with open(file_path, 'r') as json_file:
+            decoded_json_file = json.load(json_file)
+            json_bars = decoded_json_file['features']
+            return json_bars
+    except json.decoder.JSONDecodeError:
+        return None
 
 
-def load_from_csv(filepath):
-        with open(filepath, 'r') as file_handler:
-            return list(csv.reader(file_handler))
-
-
-def get_biggest_bar(content_json):
-    biggest_bar = max(content_json, key=lambda x: x['SeatsCount'])
+def get_biggest_bar(json_bars):
+    biggest_bar = max(
+        json_bars, key=lambda x: x['properties']['Attributes']['SeatsCount'])
     return biggest_bar
 
 
-def get_smallest_bar(content_json):
-    smallest_bar = min(content_json, key=lambda x: x['SeatsCount'])
+def get_smallest_bar(json_bars):
+    smallest_bar = min(
+        json_bars, key=lambda x: x['properties']['Attributes']['SeatsCount'])
     return smallest_bar
 
 
-def get_closest_bar(content_json, coordinate_lat, coordinate_long):
-    closest_bar = min(
-        content_json,
-        key=lambda x: hypot(float(x['longitude_WGS84']) -
-                            coordinate_long, float(x['latitude_WGS84']) -
-                            coordinate_lat))
-    return closest_bar
+def get_closest_bar(json_bars, longitude, latitude):
+        distance = min(
+            json_bars, key=lambda bar: (
+                    (bar['geometry']['coordinates'][0] - latitude)**2 -
+                    (bar['geometry']['coordinates'][1] - longitude)**2))
+
+        return distance
+
+
+def enter_coordinate():
+    try:
+        latitude = float(input('Input coordinate latitude:'))
+        longitude = float(input('Input coordinate longitude:'))
+        return longitude, latitude
+    except valueError:
+        return None
 
 
 if __name__ == '__main__':
@@ -41,23 +51,22 @@ if __name__ == '__main__':
     if not os.path.isfile(file_path):
         exit('There is not any file like this')
 
-    data_from_json = load_data_from_json(file_path)
+    json_bars = load_data_from_json(file_path)
 
-    if not os.path.exists(file_path):
-        if data_from_json is None:
-            exit('There is not any file in json-formate')
+    biggest_bar = get_biggest_bar(json_bars)
+    print(
+        'The biggest bar: {}'.format(
+            biggest_bar['properties']['Attributes']['Name']))
 
+    smallest_bar = get_smallest_bar(json_bars)
+    print(
+        'The smallest bar: {}'.format(
+            smallest_bar['properties']['Attributes']['Name']))
 
-biggest_bar = get_biggest_bar(data_from_json)
-print('The biggest bar: {}'.format(biggest_bar['Name']))
+    latitude, longitude = enter_coordinate()
 
-smallest_bar = get_smallest_bar(data_from_json)
-print('The smallest bar: {}'.format(smallest_bar['Name']))
-
-longitude = float(input('Input coordinate longitude:'))
-latitude = float(input('Input coordinate latitude:'))
-closest_bar = get_closest_bar(data_from_json, coordinate_lat,
-                              coordinate_long)
-
-print('The closest bar is  ')
-print(closest_bar)
+    print(
+        'The closest bar: {}'.format(
+            get_closest_bar(
+                json_bars, latitude,
+                longitude)['properties']['Attributes']['Name']))
