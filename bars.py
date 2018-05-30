@@ -27,12 +27,12 @@ def get_smallest_bar(json_bars):
 
 
 def get_closest_bar(json_bars, longitude, latitude):
-        distance = min(
+    distance = min(
             json_bars, key=lambda bar: (
                     (bar['geometry']['coordinates'][0] - latitude)**2 -
                     (bar['geometry']['coordinates'][1] - longitude)**2))
 
-        return distance
+    return distance
 
 
 def enter_coordinate():
@@ -40,7 +40,7 @@ def enter_coordinate():
         latitude = float(input('Input coordinate latitude:'))
         longitude = float(input('Input coordinate longitude:'))
         return longitude, latitude
-    except valueError:
+    except value_Error:
         return None
 
 
