@@ -40,7 +40,7 @@ def enter_coordinate():
         latitude = float(input('Input coordinate latitude:'))
         longitude = float(input('Input coordinate longitude:'))
         return longitude, latitude
-    except value_Error:
+    except ValueError:
         return None
 
 
